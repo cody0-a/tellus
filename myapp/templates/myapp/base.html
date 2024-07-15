@@ -1,0 +1,232 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Teller - Explore Our World</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+
+        html,body{
+            padding: 0px;
+            margin: 0px;
+            border: 0px;
+
+            text-decoration: none;
+            display: block;
+            width: 100vw;
+            height : 100vh;
+            transition: background-color 0.3s ease;
+
+        }
+
+     
+
+        :root {
+            --neumorphic-light: #e0e0e0;
+            --neumorphic-dark: #1a1a1a;
+        }
+
+        
+        .neumorphic {
+            background: linear-gradient(180deg, var(--neumorphic-light) 0%);
+            overflow-y: auto;
+            background: var(--neumorphic-light);
+            box-shadow:  20px 20px 60px #bebebe,
+                        -20px -20px 60px #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .scroll{
+
+            overflow-y: scroll;
+            overflow-x: hidden;
+
+            }
+
+
+        .dark .neumorphic {
+            background: var(--neumorphic-dark);
+            box-shadow:  20px 20px 60px #0d0d0d,
+                        -20px -20px 60px #272727;
+            color : white;
+            background: #000;
+
+
+        }
+       
+
+
+        .story-card {
+            transition: transform 0.3s ease;
+            animation: alternate ;
+        }
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow:  20px 20px 60px #bebebe,
+        }
+        #world-map {
+            width: 100%;
+            height: 400px;
+            background-image: url('https://picsum.photos/3000/2050?random=1');
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+        }
+
+
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        @apply shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-white;
+    }
+
+
+    
+    .errorlist {
+        @apply text-red-500 text-xs italic mt-1;
+    }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        .content{
+            width: 80%;
+            border-left: 1px solid rgb(8, 27, 54);
+            margin-left: 16%;
+            margin-bottom:  5px
+
+        }
+        .sidebar {
+            height: 100vh;
+            width: 16%;
+            shape-outside: margin-box;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:black text-gray-900 dark:text-white overflow-x-hidden">
+    {% if user.is_authenticated %}
+    <nav class="fixed w-full top-0 right-0 neumorphic p-4 mb-8">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="inline-block transition duration-300 ease-in-out transform   infinite -rotate-[310deg] ">
+                <a href="/" class="text-2xl font-bold">
+                    <span class="letter text-red">T</span>
+                    <span class="letter text-[#fefefe]">E</span>
+                    <span class="letter text-gray-100">L</span>
+                    <span class="letter text-blue">L</span>
+                    <span class="letter text-slate-600">U</span>
+                    <span class="letter text-red">S</span>
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'story'%}" class="mx-2">Stories</a>
+                <a href="{% url 'create_story'%}" class="mx-2">create</a>
+                <a href="{% url 'quote_image' %}" class="neumorphic px-4 py-2 rounded">Quote Image</a>
+                <a href="{% url 'logout' %}" class="neumorphic-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Logout</a>
+                <button id="darkModeToggle" class="ml-4 p-2 rounded-full neumorphic">🌓</button>
+            </div>
+        </div>
+    </nav>
+
+<!-- end of navbar-->
+
+<!--beginning of the sidebar-->
+<div class="flex flex-row mt-8">
+    <!-- Sidebar -->
+    <div class="sidebar shadow-xl  fixed left-0 top-16 mt-2 h-full bg-gray-800 text-white flex flex-col p-6 space-y-4">
+        <a href="#" class="sidebar-link flex items-center space-x-2 text-gray-300 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+            <span>Chat</span>
+        </a>
+        <a href="#" class="sidebar-link flex items-center space-x-2 text-gray-300 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 12.79c-.64 0-1.28-.25-1.77-.74L12 5.76l-7.23 6.3c-.98.86-2.37.74-3.23-.24-.86-.98-.74-2.37.24-3.23l8-7a2.24 2.24 0 0 1 3.01 0l8 7c.98.86 1.1 2.25.24 3.23-.49.56-1.15.87-1.84.87zm-10.5 7.21V14m0 0L16 10m-4 4L8 10m0 4l3-3"></path>
+            </svg>
+            <span class="relative">
+                <span class="z-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs absolute -top-3 -right-3">1</span>
+                Message
+            </span>
+        </a>
+        <a href="#" class="sidebar-link flex items-center space-x-2 text-gray-300 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm8-6v-7c0-4.42-3.58-8-8-8S4 4.58 4 9v7l-2 2v1h20v-1l-2-2zm-1.4-3.4L18 13V9a6 6 0 0 0-12 0v4l-1.6-1.4a4 4 0 0 1 7.2-3.2z"></path>
+            </svg>
+            <span class="relative">
+                <span class="z-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs absolute -top-3 -right-3">1</span>
+                Notifications
+            </span>
+        </a>
+        <a href="#" class="sidebar-link flex items-center space-x-2 text-gray-300 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 16L4 8V4l12 8-12 8v-4l12-8zm2-4h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v-2h2V10H16V8h4v4h2V8a2 2 0 0 0-2-2h-2V4h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v-2z"/>
+            </svg>
+            <span>Forwarded</span>
+        </a>
+        <a href="{% url 'edit-profile'%}" class="sidebar-link flex items-center space-x-2 text-gray-300 hover:text-white">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#A0AEC0" d="M12 2C6.477 2 2 6.477 2 12c0 5.522 4.477 10 10 10s10-4.478 10-10C22 6.477 17.523 2 12 2zm0 2c3.866 0 7 3.134 7 7 0 1.657-.58 3.17-1.55 4.37-1.713-1.234-3.748-2.004-6.05-2.004s-4.337.77-6.05 2.004C5.58 14.17 5 12.657 5 11c0-3.866 3.134-7 7-7zm0 2c2.76 0 5 2.24 5 5 0 2.758-2.24 5-5 5s-5-2.242-5-5c0-2.76 2.24-5 5-5zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm6.5 10.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+              </svg>
+            <span class="relative">
+                <span class="z-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs absolute -top-3 -right-3">1</span>
+                profile
+            </span>
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="scroll p-6 space-x-4  content">
+        <main class="flex flex-col space-y-8 static ">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+    
+    {% else %}
+        {# User is not authenticated, show register and login buttons #}
+        <a href="{% url 'register' %}" class="neumorphic bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Register</a>
+        <a href="{% url 'login' %}" class="neumorphic-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Login</a>
+    {% endif %}
+
+    
+
+    <footer class="fixed bottom-0 w-full neumorphic mt-8 p-4 text-center">
+        <p>&copy; 2023 Story Teller. Explore the world through stories.</p>
+    </footer>
+
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem('darkMode', body.classList.contains('dark'));
+        });
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        // Add fade-in animation to story cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const storyCards = document.querySelectorAll('.story-card');
+            storyCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('fade-in');
+                }, index * 100);
+            });
+        });
+ 
+    
+    </script>
+</body>
+</html>

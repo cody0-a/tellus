@@ -1,0 +1,81 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <h2 class="text-3xl font-bold mb-6 text-center">Edit Profile</h2>
+    
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="flex flex-col md:flex-row">
+        <div class="md:w-1/3 mb-6 md:mb-0">
+            {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}'s avatar" class="w-48 h-48 rounded-full mx-auto">
+            {% else %}
+            <img src="{% static 'myapp/default_avatar.png' %}" alt="Default avatar" class="w-48 h-48 rounded-full mx-auto">
+            {% endif %}
+        </div>
+        <div class="md:w-2/3">
+            <form method="post" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                <h3 class="text-xl font-bold mb-2">User Information</h3>
+                {% for field in user_form %}
+                <div class="flex flex-col">
+                    <label for="{{ field.id_for_label }}" class="mb-2 font-bold text-gray-700 dark:text-gray-300">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <p class="text-red-500 text-xs italic">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <h3 class="text-xl font-bold mb-2 mt-6">Profile Information</h3>
+                {% for field in profile_form %}
+                <div class="flex flex-col">
+                    <label for="{{ field.id_for_label }}" class="mb-2 font-bold text-gray-700 dark:text-gray-300">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <p class="text-red-500 text-xs italic">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <div class="flex justify-end">
+                    <button type="submit" class="neumorphic bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.getElementById('id_avatar');
+    const avatarPreview = document.querySelector('img');
+
+    avatarInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                avatarPreview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
+{% endblock %}

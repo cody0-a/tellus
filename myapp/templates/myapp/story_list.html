@@ -1,0 +1,28 @@
+{% extends '/myapp/base.html' %}
+
+{% block title %}Stories - Story Teller{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-8">Stories</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for story in stories %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold mb-2">{{ story.user.username }}</h2>
+                    {% if story.is_image %}
+                        <img src="{{ story.content }}" alt="Story image" class="w-full h-48 object-cover mb-4">
+                    {% else %}
+                        <p class="text-gray-700 mb-4">{{ story.content }}</p>
+                    {% endif %}
+                    <div class="flex justify-between items-center text-sm text-gray-600">
+                        <span>Comments: {{ story.comment_count }}</span>
+                        <span>Likes: {{ story.like_count }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'story_detail' story.id %}" class="block bg-blue-500 hover:bg-blue-600 text-white text-center py-2">View Details</a>
+            </div>
+        {% empty %}
+            <p class="text-gray-700">No stories available.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

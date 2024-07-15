@@ -1,0 +1,105 @@
+<!-- quote_image.html -->
+
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <h2 class="text-3xl font-bold mb-6 text-center">Quote Image Generator</h2>
+    <div class="flex flex-col items-center space-y-6">
+        <canvas id="quoteCanvas" width="800" height="400" class="border border-gray-300 dark:border-gray-600 rounded-lg"></canvas>
+        <div id="quoteContainer" class="hidden"></div>
+        <div class="flex space-x-4">
+            <button id="generateBtn" class="neumorphic bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Generate New Quote
+            </button>
+            <button id="downloadBtn" class="neumorphic bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Download Image
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('quoteCanvas');
+const ctx = canvas.getContext('2d');
+const generateBtn = document.getElementById('generateBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const quoteContainer = document.getElementById('quoteContainer');
+
+function drawQuote(quote, author) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background
+    ctx.fillStyle = 'rgb(240, 240, 240)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Quote text
+    ctx.font = 'bold 24px Arial';
+    ctx.fillStyle = 'rgb(50, 50, 50)';
+    wrapText(ctx, `"${quote}"`, 40, 100, 720, 30);
+
+    // Author
+    ctx.font = 'italic 20px Arial';
+    ctx.fillStyle = 'rgb(100, 100, 100)';
+    ctx.fillText(`- ${author}`, 40, 350);
+
+    // Decorative elements
+    ctx.strokeStyle = 'rgb(200, 200, 200)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(20, 20);
+    ctx.lineTo(780, 20);
+    ctx.moveTo(20, 380);
+    ctx.lineTo(780, 380);
+    ctx.stroke();
+}
+
+function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+            context.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    context.fillText(line, x, y);
+}
+
+function generateQuote() {
+    fetch('/api/random-quote/')
+        .then(response => response.text())
+        .then(html => {
+            quoteContainer.innerHTML = html;
+            const content = quoteContainer.querySelector('.quote-content');
+            const author = quoteContainer.querySelector('.quote-author');
+            if (content && author) {
+                drawQuote(content.dataset.content, author.dataset.author);
+            } else {
+                console.error('Error fetching quote');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+generateBtn.addEventListener('click', generateQuote);
+
+downloadBtn.addEventListener('click', () => {
+    const dataURL = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = 'quote.png';
+    link.href = dataURL;
+    link.click();
+});
+
+// Generate initial quote on page load
+generateQuote();
+</script>
+{% endblock %}

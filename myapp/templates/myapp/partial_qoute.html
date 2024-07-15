@@ -1,0 +1,11 @@
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+    {% if error %}
+        <p class="text-red-500">{{ error }}</p>
+    {% else %}
+        <div class="quote-content" data-content="{{ content }}">{{ content }}</div>
+        <div class="quote-author" data-author="{{ author }}">{{ author }}</div>
+    {% endif %}
+
+{% endblock %}

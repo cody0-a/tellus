@@ -1,0 +1,142 @@
+<!-- templates/story_detail.html -->
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+<article class="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl my-8">
+    <header class="relative">
+        <img src="https://picsum.photos/1200/400?random={{ story.id }}" alt="Story cover" class="w-full h-64 object-cover">
+        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <h1 class="text-4xl font-bold text-white mb-4 text-center px-4">{{ story.title }}</h1>
+        </div>
+    </header>
+
+    <div class="p-8">
+        <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-8">
+            <div class="flex items-center">
+                <img src="https://picsum.photos/200/200?random={{ story.id }}" alt="{{ story.author.username }}" class="w-12 h-12 rounded-full mr-4 border-2 border-blue-500">
+                <div>
+                    <span class="font-semibold text-lg text-gray-800 dark:text-white">{{ story.author.get_full_name|default:story.author.username }}</span>
+                    <p class="text-xs">Author</p>
+                </div>
+            </div>
+            <time datetime="{{ story.created_at|date:'Y-m-d' }}" class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                {{ story.created_at|date:"F j, Y" }}
+            </time>
+        </div>
+
+        <div class="prose dark:prose-invert max-w-none mb-8">
+            {{ story.content|safe }}
+        </div>
+
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex space-x-4">
+                <button id="likeButton" class="flex items-center space-x-2 bg-white dark:bg-gray-700 px-4 py-2 rounded-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                    </svg>
+                    <span id="likeCount" class="font-bold">0</span>
+                </button>
+                <button id="shareButton" class="bg-white dark:bg-gray-700 px-4 py-2 rounded-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                    </svg>
+                    Share
+                </button>
+            </div>
+            <a href="{% url 'story' %}" class="text-blue-500 hover:text-blue-700 transition duration-300">Back to Stories</a>
+        </div>
+
+        <section id="comments" class="mt-12">
+            <h2 class="text-2xl font-bold mb-4">Comments</h2>
+            <form id="commentForm" class="mb-8">
+                <textarea id="commentContent" rows="4" class="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" placeholder="Share your thoughts..."></textarea>
+                <button type="submit" class="mt-2 bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition duration-300 transform hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500">Post Comment</button>
+            </form>
+            <div id="commentList" class="space-y-4">
+                <!-- Comments will be dynamically added here -->
+            </div>
+        </section>
+    </div>
+</article>
+
+<script>
+    const likeButton = document.getElementById('likeButton');
+    const likeCount = document.getElementById('likeCount');
+    const shareButton = document.getElementById('shareButton');
+    const commentForm = document.getElementById('commentForm');
+    const commentContent = document.getElementById('commentContent');
+    const commentList = document.getElementById('commentList');
+
+    let likes = 0;
+
+    likeButton.addEventListener('click', () => {
+        likes++;
+        likeCount.textContent = likes;
+        likeButton.classList.add('liked');
+        likeButton.querySelector('svg').classList.add('text-red-500', 'fill-current', 'animate-pulse');
+        setTimeout(() => {
+            likeButton.querySelector('svg').classList.remove('animate-pulse');
+        }, 300);
+    });
+
+    shareButton.addEventListener('click', () => {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            shareButton.textContent = 'Copied!';
+            shareButton.classList.add('bg-green-500', 'text-white');
+            setTimeout(() => {
+                shareButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>Share';
+                shareButton.classList.remove('bg-green-500', 'text-white');
+            }, 2000);
+        });
+    });
+
+    commentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (commentContent.value.trim() !== '') {
+            const comment = document.createElement('div');
+            comment.classList.add('bg-white', 'dark:bg-gray-700', 'p-4', 'rounded-lg', 'shadow', 'transform', 'transition-all', 'duration-300', 'hover:shadow-lg', 'hover:-translate-y-1');
+            comment.innerHTML = `
+                <div class="flex items-center mb-2">
+                    <img src="https://picsum.photos/200/200?random=${Math.random()}" alt="User" class="w-10 h-10 rounded-full mr-3 border-2 border-blue-500">
+                    <div>
+                        <span class="font-bold text-gray-800 dark:text-white">Anonymous User</span>
+                        <p class="text-xs text-gray-500">Just now</p>
+                    </div>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300">${commentContent.value}</p>
+            `;
+            comment.style.opacity = '0';
+            comment.style.transform = 'translateY(20px)';
+            commentList.prepend(comment);
+            setTimeout(() => {
+                comment.style.opacity = '1';
+                comment.style.transform = 'translateY(0)';
+            }, 10);
+            commentContent.value = '';
+        }
+    });
+
+    // Animate content on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const article = document.querySelector('article');
+        article.style.opacity = '0';
+        article.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            article.style.opacity = '1';
+            article.style.transform = 'translateY(0)';
+        }, 100);
+    });
+
+    // Dark mode toggle
+    const darkModeToggle = document.createElement('button');
+    darkModeToggle.innerHTML = '🌓';
+    darkModeToggle.classList.add('fixed', 'bottom-4', 'right-4', 'bg-white', 'dark:bg-gray-800', 'p-2', 'rounded-full', 'shadow-lg', 'text-xl', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500', 'transition', 'duration-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+    document.body.appendChild(darkModeToggle);
+
+    darkModeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+    });
+</script>
+{% endblock %}

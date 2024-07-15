@@ -1,0 +1,80 @@
+<!-- templates/myapp/create_story.html -->
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div class="w-full max-w-2xl">
+        <form class="neumorphic bg-white dark:bg-gray-800 shadow-lg rounded-lg px-12 pt-6 pb-8 mb-4" method="post">
+            {% csrf_token %}
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Write Your Story</h2>
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="mb-4">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="{{ form.title.id_for_label }}">
+                    Title
+                </label>
+                {{ form.title }}
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="{{ form.content.id_for_label }}">
+                    Content
+                </label>
+                {{ form.content }}
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="neumorphic-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110" type="submit">
+                    Publish Story
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .neumorphic {
+        box-shadow: 12px 12px 24px 0 rgba(0, 0, 0, 0.2),
+                    -12px -12px 24px 0 rgba(255, 255, 255, 0.5);
+        transition: all 0.3s ease-in-out;
+    }
+    .neumorphic:hover {
+        box-shadow: 6px 6px 12px 0 rgba(0, 0, 0, 0.2),
+                    -6px -6px 12px 0 rgba(255, 255, 255, 0.5);
+    }
+    .neumorphic-input {
+        background: #e0e0e0;
+        box-shadow: inset 5px 5px 10px #bebebe,
+                    inset -5px -5px 10px #ffffff;
+    }
+    .neumorphic-button {
+        box-shadow: 5px 5px 10px #bebebe,
+                    -5px -5px 10px #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+        .neumorphic {
+            box-shadow: 12px 12px 24px 0 rgba(0, 0, 0, 0.6),
+                        -12px -12px 24px 0 rgba(255, 255, 255, 0.1);
+        }
+        .neumorphic:hover {
+            box-shadow: 6px 6px 12px 0 rgba(0, 0, 0, 0.6),
+                        -6px -6px 12px 0 rgba(255, 255, 255, 0.1);
+        }
+        .neumorphic-input {
+            background: #2d3748;
+            box-shadow: inset 5px 5px 10px #1a202c,
+                        inset -5px -5px 10px #4a5568;
+        }
+        .neumorphic-button {
+            box-shadow: 5px 5px 10px #1a202c,
+                        -5px -5px 10px #4a5568;
+        }
+    }
+</style>
+{% endblock %}

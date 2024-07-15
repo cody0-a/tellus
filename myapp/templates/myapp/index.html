@@ -1,0 +1,100 @@
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+<div class="text-center mb-12 ">
+    <h1 class="text-4xl font-bold mb-4 mt-10">Discover Stories from Around the World</h1>
+    <p class="text-xl space-x-4 space-y-6">Explore cultures, places, and experiences through the eyes of storytellers.</p>
+</div>
+
+<div id="world-map" class="mb-12 shadow-lg rounded-lg">
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {% for story in stories %}
+    <div class="story-card shadow-lg rounded-lg p-6" data-article-id="{{ story.id }}">
+        <h2 class="text-2xl font-bold mb-2">{{ story.title }}</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">By {{ story.author }} | {{ story.date }}</p>
+        <p class="mb-4">{{ story.excerpt }}</p>
+        <button class="text-blue-500 hover:text-blue-700 read-more-btn">Read more</button>
+    </div>
+    {% endfor %}
+</div>
+
+<div id="article-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+  <div class="flex items-center justify-center">
+    <div class="bg-white shadow-xl rounded-lg w-full max-w-3xl p-6">
+      <span class="close-button font-bold text-gray-500 hover:text-gray-700 cursor-pointer float-right">&times;</span>
+      <div id="modal-article-content">
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    width: 100%;
+    height: 100%;
+    top: 16px;
+    left: 0;
+    right: 0;
+    bottom: 222;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  .close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close-button:hover,
+  .close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+   document.addEventListener('DOMContentLoaded',function(){
+      const readMoreButtons = document.querySelectorAll('.read-more-btn');
+      const modal = document.getElementById('article-modal');
+      const closeButton = document.getElementsByClassName('close-button')[0]
+
+      readMoreButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+          const articleId = this.closest('.story-card').dataset.articleId;
+          fetchArticleContent(articleId).then(function(content) {
+            document.getElementById('modal-article-content').innerHTML = content;
+            modal.classList.remove('hidden');
+          
+          });
+        });
+      });
+
+
+    closeButton.addEventListener('click',() =>{
+        modal.classList.add('hidden')
+    })
+
+    window.addEventListener('click',(event) =>{
+        if(event.target == modal){
+            modal.classList.add('hidden')
+        }
+        
+        
+    })
+
+   })
+   async function fetchArticleContent(articleId) {
+      const response = await fetch(`/articles/${articleId}/content/`);
+      const content = await response.text();
+      return content;
+    }
+  </script>
+{% endblock %}
